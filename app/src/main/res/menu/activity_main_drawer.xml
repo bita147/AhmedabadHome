@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_daily_view"
+            android:icon="@drawable/ic_daily"
+            android:title="Daily view" />
+        <item
+            android:id="@+id/nav_month_view"
+            android:icon="@drawable/ic_monthly"
+            android:title="Month view" />
+
+    </group>
+
+    <item android:title="Personal" android:visible="false">
+        <menu>
+            <item
+                android:id="@+id/nav_profile"
+                android:icon="@drawable/ic_add"
+                android:title="Profile" />
+            <item
+                android:id="@+id/nav_setting"
+                android:icon="@drawable/ic_add"
+                android:title="Setting" />
+        </menu>
+    </item>
+
+</menu>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#009688</color>
+    <color name="colorPrimaryDark">#00796B</color>
+    <color name="colorAccent">#FF5722</color>
+
+    <color name="primary_light">#B2DFDB</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#B6B6B6</color>
+
+
+    <color name="a">#F44336</color>
+    <color name="b">#9C27B0</color>
+    <color name="c">#C2185B</color>
+    <color name="d">#3F51B5</color>
+    <color name="e">#673AB7</color>
+    <color name="f">#FF9800</color>
+    <color name="g">#00BCD4</color>
+    <color name="h">#009688</color>
+    <color name="i">#01579B</color>
+    <color name="j">#4CAF50</color>
+    <color name="k">#AED581</color>
+    <color name="l">#C0CA33</color>
+    <color name="m">#00C853</color>
+    <color name="n">#FFC107</color>
+    <color name="o">#FFEB3B</color>
+    <color name="p">#42A5F5</color>
+    <color name="q">#FF7043</color>
+    <color name="r">#6D4C41</color>
+    <color name="s">#616161</color>
+    <color name="t">#78909C</color>
+    <color name="u">#2E7D32</color>
+    <color name="v">#C2185B</color>
+    <color name="w">#1DE9B6</color>
+    <color name="x">#FF5252</color>
+    <color name="y">#FFA000</color>
+    <color name="z">#4A148C</color>
+</resources>
