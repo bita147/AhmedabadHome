@@ -45,6 +45,8 @@
                     android:singleLine="true" />
 
                 <EditText
+                    android:imeActionLabel="Login"
+                    android:imeOptions="actionGo"
                     android:id="@+id/et_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -59,7 +61,7 @@
                     android:layout_marginTop="10dp"
                     android:gravity="right">
 
-                    <Button
+                    <Button android:visibility="gone"
                         android:id="@+id/btn_register"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

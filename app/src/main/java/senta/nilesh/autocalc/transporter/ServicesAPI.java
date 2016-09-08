@@ -26,6 +26,7 @@ import senta.nilesh.autocalc.dto.UserProfileDTO;
 import senta.nilesh.autocalc.listeners.FirebaseItemListChangeListener;
 import senta.nilesh.autocalc.listeners.TransactionInsertListener;
 import senta.nilesh.autocalc.utils.AppPref;
+import senta.nilesh.autocalc.utils.AppUtils;
 
 /**
  * Created by "Nilesh Senta" on 4/7/2016.
@@ -56,6 +57,7 @@ public class ServicesAPI {
     }
 
     public static void doLogin(final Context context, final UserProfileDTO profile, final Firebase.CompletionListener listener) {
+        AppUtils.hideKeyboard(context);
         final Firebase fbLogin = Globle.FIREBASE_HOME.child("/User");
         fbLogin.child(profile.getUserName()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -64,8 +66,11 @@ public class ServicesAPI {
                     listener.onComplete(new FirebaseError(1002, "User not exists"), fbLogin);
                 } else {
                     UserProfileDTO data = dataSnapshot.getValue(UserProfileDTO.class);
-                    AppPref.get(context).saveLoginDTO(dataSnapshot.getValue(UserProfileDTO.class));
-                    listener.onComplete(null, fbLogin);
+                    if (profile.getPassword().equals(data.getPassword())){
+                        AppPref.get(context).saveLoginDTO(data);
+                        listener.onComplete(null, fbLogin);
+                    }else
+                        listener.onComplete(new FirebaseError(1002, "Wrong password...!"), fbLogin);
                 }
             }
 
