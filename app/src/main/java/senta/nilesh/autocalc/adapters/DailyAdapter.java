@@ -18,6 +18,7 @@ import senta.nilesh.autocalc.R;
 import senta.nilesh.autocalc.dto.ItemDTO;
 import senta.nilesh.autocalc.listeners.ListOperationListener;
 import senta.nilesh.autocalc.utils.AppPref;
+import senta.nilesh.autocalc.utils.AppUtils;
 
 /**
  * Created by "Nilesh Senta" on 4/6/2016.
@@ -28,7 +29,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyAdapter
     private Context context;
     private ListOperationListener listener;
 
-    public DailyAdapter(Context context, ObservableArrayList<ItemDTO> rcList,ListOperationListener listener) {
+    public DailyAdapter(Context context, ObservableArrayList<ItemDTO> rcList, ListOperationListener listener) {
         this.rcList = rcList;
         this.context = context;
         this.listener = listener;
@@ -54,7 +55,7 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyAdapter
             holder.ivDelete.setVisibility(View.VISIBLE);
 //            holder.cvItemRow.setCardElevation(0);
 //            holder.cvItemRow.setCardBackgroundColor(Color.parseColor("#FAFAFA"));
-        }else {
+        } else {
             holder.ivDelete.setVisibility(View.GONE);
 //            holder.cvItemRow.setCardElevation(2);
 //            holder.cvItemRow.setCardBackgroundColor(Color.WHITE);
@@ -62,17 +63,23 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyAdapter
         holder.ivDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (listener!=null)
+                if (listener != null)
                     listener.onDeleteItemClick(rcList.get(position));
             }
         });
         holder.llMainRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (listener!=null)
-                    listener.onItemClick(v,rcList.get(position));
+                if (listener != null)
+                    listener.onItemClick(v, rcList.get(position));
             }
         });
+
+        if (AppUtils.isTodayDate(rcList.get(position).getKey())){
+            holder.cvItemRow.setCardBackgroundColor(ContextCompat.getColor(context, R.color.color_card_background));
+        }else{
+            holder.cvItemRow.setCardBackgroundColor(ContextCompat.getColor(context, android.R.color.white));
+        }
     }
 
     @Override

@@ -47,6 +47,14 @@ public class AppPref {
         return null;
     }
 
+    public void saveContactString(String contacts) {
+        sp.edit().putString("contact_string", contacts).commit();
+    }
+
+    public String getContactString() {
+        return sp.getString("contact_string", "");
+    }
+
     public  void saveRegistrationToken(String token){
         sp.edit().putString("registration_token", token).commit();
     }

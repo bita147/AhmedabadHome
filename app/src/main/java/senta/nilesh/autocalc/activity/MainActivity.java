@@ -3,14 +3,21 @@ package senta.nilesh.autocalc.activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,13 +31,15 @@ import senta.nilesh.autocalc.R;
 import senta.nilesh.autocalc.controls.MultiSpinner;
 import senta.nilesh.autocalc.dto.ItemDTO;
 import senta.nilesh.autocalc.dto.NotificationDTO;
+import senta.nilesh.autocalc.dto.UserProfileDTO;
 import senta.nilesh.autocalc.fragments.DailyViewFragment;
+import senta.nilesh.autocalc.fragments.MonthViewFragment;
 import senta.nilesh.autocalc.listeners.TransactionInsertListener;
 import senta.nilesh.autocalc.transporter.ServicesAPI;
 import senta.nilesh.autocalc.utils.AppPref;
 
-public class MainActivity extends AppCompatActivity /*implements NavigationView.OnNavigationItemSelectedListener*/ {
-    //    private NavigationView navigationView;
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private NavigationView navigationView;
     private FragmentManager fm;
     private FloatingActionButton fabAddItem;
 
@@ -52,52 +61,53 @@ public class MainActivity extends AppCompatActivity /*implements NavigationView.
 
         setTitle("" + AppPref.get(this).getUserProfileDTO().getUserName());
 
-        DailyViewFragment fragment = new DailyViewFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.ll_container, fragment).commit();
+//        DailyViewFragment fragment = new DailyViewFragment();
+//        getSupportFragmentManager().beginTransaction().add(R.id.ll_container, fragment).commit();
 
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
-//            @Override
-//            public void onDrawerOpened(View drawerView) {
-//                super.onDrawerOpened(drawerView);
-//                setupHeader();
-//            }
-//        };
-//        drawer.setDrawerListener(toggle);
-//        toggle.syncState();
-//
-//        navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        navigationView.setNavigationItemSelectedListener(this);
-//
-//        // Select First Item and load Fragment
-//        navigationView.getMenu().getItem(0).setChecked(true);
-//        onNavigationItemSelected(navigationView.getMenu().getItem(0));
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                setupHeader();
+            }
+        };
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        // Select First Item and load Fragment
+        navigationView.getMenu().getItem(0).setChecked(true);
+        onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
     }
 
-//      private void setupHeader() {
-//        UserProfileDTO dto = AppPref.get(this).getUserProfileDTO();
-//        if (dto != null) {
-//            TextView tvUserName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_username);
-//            TextView tvShortnameRound = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_short_name);
-//            TextView tvEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_email);
-//
-//            if (!TextUtils.isEmpty(dto.getFirstName()) && !TextUtils.isEmpty(dto.getLastName())) {
-//                tvUserName.setText(dto.getFirstName() + " " + dto.getLastName());
-//                tvShortnameRound.setText(String.valueOf(dto.getFirstName().charAt(0) + dto.getLastName().charAt(0)).toUpperCase());
-//            } else {
-//                tvUserName.setText(dto.getUserName());
-//                tvShortnameRound.setText(String.valueOf(dto.getUserName().charAt(0)).toUpperCase());
-//            }
-//            if (!TextUtils.isEmpty(dto.getEmail())) {
-//                tvEmail.setText(dto.getEmail());
-//            }
-//        }
-//    }
+    private void setupHeader() {
+        UserProfileDTO dto = AppPref.get(this).getUserProfileDTO();
+        if (dto != null) {
+            TextView tvUserName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_username);
+            TextView tvShortnameRound = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_short_name);
+            TextView tvEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_email);
+
+            if (!TextUtils.isEmpty(dto.getFirstName()) && !TextUtils.isEmpty(dto.getLastName())) {
+                tvUserName.setText(dto.getFirstName() + " " + dto.getLastName());
+                tvShortnameRound.setText(String.valueOf(dto.getFirstName().charAt(0) + dto.getLastName().charAt(0)).toUpperCase());
+            } else {
+                tvUserName.setText(dto.getUserName());
+                tvShortnameRound.setText(String.valueOf(dto.getUserName().charAt(0)).toUpperCase());
+            }
+            if (!TextUtils.isEmpty(dto.getEmail())) {
+                tvEmail.setText(dto.getEmail());
+            }
+        }
+    }
+
     Dialog dialog;
 
     private void showInputDialog() {
-        dialog =  new Dialog(this, R.style.Dialog);
+        dialog = new Dialog(this, R.style.Dialog);
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.dialog_buy_thing);
 
@@ -165,62 +175,61 @@ public class MainActivity extends AppCompatActivity /*implements NavigationView.
         });
     }
 
-    //    @Override
-//    public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START)) {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else {
-//            if (!navigationView.getMenu().getItem(0).isChecked()) {
-//                navigationView.getMenu().getItem(0).setChecked(true);
-//                onNavigationItemSelected(navigationView.getMenu().getItem(0));
-//            } else {
-//                fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//                super.onBackPressed();
-//            }
-//        }
-//    }
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            if (!navigationView.getMenu().getItem(0).isChecked()) {
+                navigationView.getMenu().getItem(0).setChecked(true);
+                onNavigationItemSelected(navigationView.getMenu().getItem(0));
+            } else {
+                fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                super.onBackPressed();
+            }
+        }
+    }
 
-//    @SuppressWarnings("StatementWithEmptyBody")
-//    @Override
-//    public boolean onNavigationItemSelected(MenuItem item) {
-//        // Handle navigation view item clicks here.
-//        int id = item.getItemId();
-//        FragmentTransaction frgTransaction = getSupportFragmentManager().beginTransaction();
-//        frgTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-//
-//        // Remove all Fragment
-//        fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//
-//        if (id == R.id.nav_daily_view) {
-//            DailyViewFragment fragment = new DailyViewFragment();
-//            frgTransaction.add(R.id.ll_container, fragment).addToBackStack(null).commit();
-//        } else if (id == R.id.nav_month_view) {
-//            MonthViewFragment fragment = new MonthViewFragment();
-//            frgTransaction.add(R.id.ll_container, fragment).addToBackStack(null).commit();
-//        }
-//        else if (id == R.id.nav_profile) {
-//            selectFirstMenu();
-//            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-//        } else if (id == R.id.nav_setting) {
-//            selectFirstMenu();
-//        }
-//
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        drawer.closeDrawer(GravityCompat.START);
-//        return true;
-//    }
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+        FragmentTransaction frgTransaction = getSupportFragmentManager().beginTransaction();
+        frgTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
-//    private void clearMenuSelection() {
-//        for (int i = 0; i < navigationView.getMenu().size(); i++)
-//            navigationView.getMenu().getItem(i).setChecked(false);
-//    }
-//
-//    private void selectFirstMenu() {
-//        fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//        if (!navigationView.getMenu().getItem(0).isChecked()) {
-//            navigationView.getMenu().getItem(0).setChecked(true);
-//            onNavigationItemSelected(navigationView.getMenu().getItem(0));
-//        }
-//    }
+        // Remove all Fragment
+        fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+        if (id == R.id.nav_daily_view) {
+            DailyViewFragment fragment = new DailyViewFragment();
+            frgTransaction.add(R.id.ll_container, fragment).addToBackStack(null).commit();
+        } else if (id == R.id.nav_month_view) {
+            MonthViewFragment fragment = new MonthViewFragment();
+            frgTransaction.add(R.id.ll_container, fragment).addToBackStack(null).commit();
+        } else if (id == R.id.nav_profile) {
+            selectFirstMenu();
+            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+        } else if (id == R.id.nav_setting) {
+            selectFirstMenu();
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void clearMenuSelection() {
+        for (int i = 0; i < navigationView.getMenu().size(); i++)
+            navigationView.getMenu().getItem(i).setChecked(false);
+    }
+
+    private void selectFirstMenu() {
+        fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (!navigationView.getMenu().getItem(0).isChecked()) {
+            navigationView.getMenu().getItem(0).setChecked(true);
+            onNavigationItemSelected(navigationView.getMenu().getItem(0));
+        }
+    }
 }

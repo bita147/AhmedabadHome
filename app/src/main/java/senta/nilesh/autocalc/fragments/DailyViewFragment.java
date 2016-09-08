@@ -2,6 +2,7 @@ package senta.nilesh.autocalc.fragments;
 
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
@@ -9,8 +10,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,9 +48,16 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
     private View empty;
     private ImageView ivEmpty;
     private TextView tvEmpty;
+    private Context context;
 
     public DailyViewFragment() {
 
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        this.context = context;
+        super.onAttach(context);
     }
 
     @Override
@@ -58,6 +68,7 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ((AppCompatActivity) context).setTitle(setupHeader());
         View root = inflater.inflate(R.layout.fragment_daily_view, container, false);
         RecyclerView rcvDailyList = (RecyclerView) root.findViewById(R.id.rcv_daily_list);
 
@@ -73,6 +84,19 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
 
         updateRegistrationToken();
         return root;
+    }
+
+    private String setupHeader() {
+        UserProfileDTO dto = AppPref.get(context).getUserProfileDTO();
+        if (dto != null) {
+            if (!TextUtils.isEmpty(dto.getFirstName()) && !TextUtils.isEmpty(dto.getLastName())) {
+                return dto.getFirstName() + " " + dto.getLastName();
+
+            } else {
+                return dto.getUserName();
+            }
+        }
+        return "";
     }
 
     private void updateRegistrationToken() {
@@ -148,7 +172,7 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
 
         TextView tvInserted = (TextView) dialog.findViewById(R.id.tv_inserted);
         TextView tvUsersIncluded = (TextView) dialog.findViewById(R.id.tv_users_included);
-        TextView tvAmount= (TextView) dialog.findViewById(R.id.tv_amount);
+        TextView tvAmount = (TextView) dialog.findViewById(R.id.tv_amount);
         Button btnOk = (Button) dialog.findViewById(R.id.btn_dialog_ok);
 
         tvInserted.setText(item.getUserName());

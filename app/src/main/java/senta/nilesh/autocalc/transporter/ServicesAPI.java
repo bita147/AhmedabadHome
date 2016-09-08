@@ -2,6 +2,7 @@ package senta.nilesh.autocalc.transporter;
 
 import android.content.Context;
 import android.databinding.ObservableArrayList;
+import android.util.Log;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -71,6 +72,28 @@ public class ServicesAPI {
             @Override
             public void onCancelled(FirebaseError firebaseError) {
                 listener.onComplete(firebaseError, fbLogin);
+            }
+        });
+    }
+
+    public static void getContactString(final Context context, final Firebase.CompletionListener listener) {
+        final Firebase fbGetContacts = Globle.FIREBASE_HOME.child("/Contact/Data");
+        fbGetContacts.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() == null) {
+                    listener.onComplete(new FirebaseError(1002, "No Contacts"), fbGetContacts);
+                } else {
+                    Log.e(getClass().getName(), ""+ dataSnapshot.getValue());
+                    AppPref.get(context).saveContactString(dataSnapshot.getValue().toString());
+                    listener.onComplete(null, fbGetContacts);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                listener.onComplete(firebaseError, fbGetContacts);
             }
         });
     }
