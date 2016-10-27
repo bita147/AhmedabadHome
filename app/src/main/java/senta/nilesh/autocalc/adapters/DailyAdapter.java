@@ -43,6 +43,9 @@ public class DailyAdapter extends RecyclerView.Adapter<DailyAdapter.DailyAdapter
 
     @Override
     public void onBindViewHolder(final DailyAdapterHolder holder, final int position) {
+        if (rcList.get(position) == null)
+            return;
+
         holder.tvDesc.setText(rcList.get(position).getItemDesc());
         holder.tvDate.setText(rcList.get(position).getBuyDate());
         holder.tvAmt.setText(String.valueOf(rcList.get(position).getAmt()));

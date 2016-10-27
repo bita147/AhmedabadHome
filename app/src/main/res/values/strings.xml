@@ -8,6 +8,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="menu_sigma">&#8721;</string>
 
     <!-- Strings related to Settings -->
 
@@ -61,7 +62,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_profile">Profile</string>
 
-    <string name="slow_connection">We are getting your records. Seat back</string>
+    <string name="slow_connection">We are getting your records.\nSeat back</string>
     <string name="no_data_found">Oops, Sorry no data found.</string>
     <string name="no_selection">No Selection</string>
 </resources>

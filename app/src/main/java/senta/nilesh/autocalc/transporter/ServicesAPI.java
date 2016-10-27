@@ -23,7 +23,9 @@ import java.util.List;
 import senta.nilesh.autocalc.dto.ItemDTO;
 import senta.nilesh.autocalc.dto.NotificationDTO;
 import senta.nilesh.autocalc.dto.UserProfileDTO;
+import senta.nilesh.autocalc.dto.WaterBottleDTO;
 import senta.nilesh.autocalc.listeners.FirebaseItemListChangeListener;
+import senta.nilesh.autocalc.listeners.FirebaseWaterBottleItemListChangeListener;
 import senta.nilesh.autocalc.listeners.TransactionInsertListener;
 import senta.nilesh.autocalc.utils.AppPref;
 import senta.nilesh.autocalc.utils.AppUtils;
@@ -115,8 +117,24 @@ public class ServicesAPI {
         });
     }
 
+    public static void insertWaterBottle(final WaterBottleDTO waterBottleDTO, final TransactionInsertListener transctionListener) {
+        final Firebase fbInsTransaction = Globle.FIREBASE_HOME.child("/Waterbottle").child(String.valueOf(System.currentTimeMillis()));
+        fbInsTransaction.setValue(waterBottleDTO, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                if (firebaseError == null) {
+                    transctionListener.onTransactionCompleted();
+                }
+            }
+        });
+    }
+
     public static void removeNodebyKey(String key) {
         Globle.FIREBASE_HOME.child("/Transaction").child(key).removeValue();
+    }
+
+    public static void removeWaterNodebyKey(String key) {
+        Globle.FIREBASE_HOME.child("/Waterbottle").child(key).removeValue();
     }
 
     public static void getAllRecords(final FirebaseItemListChangeListener listerner) {
@@ -153,6 +171,33 @@ public class ServicesAPI {
 //                    dto.setBuyDate();
 //                    dto.setItemDesc();
 //                    dto.setAmt();
+
+                }
+                listerner.onItemChange(list);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    public static void getAllWaterBottlesRecords(final FirebaseWaterBottleItemListChangeListener listerner) {
+        final Firebase fbGetAllRecords = Globle.FIREBASE_HOME.child("/Waterbottle");
+        fbGetAllRecords.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ObservableArrayList<WaterBottleDTO> list = new ObservableArrayList<WaterBottleDTO>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
+                    try {
+                        WaterBottleDTO dto = itemSnapshot.getValue(WaterBottleDTO.class);
+                        dto.setKey(itemSnapshot.getKey());
+                        list.add(0, dto);
+                        itemSnapshot.getKey();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                 }
                 listerner.onItemChange(list);

@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -32,8 +33,10 @@ import senta.nilesh.autocalc.controls.MultiSpinner;
 import senta.nilesh.autocalc.dto.ItemDTO;
 import senta.nilesh.autocalc.dto.NotificationDTO;
 import senta.nilesh.autocalc.dto.UserProfileDTO;
+import senta.nilesh.autocalc.dto.WaterBottleDTO;
 import senta.nilesh.autocalc.fragments.DailyViewFragment;
 import senta.nilesh.autocalc.fragments.MonthViewFragment;
+import senta.nilesh.autocalc.fragments.WaterBottleFragment;
 import senta.nilesh.autocalc.listeners.TransactionInsertListener;
 import senta.nilesh.autocalc.transporter.ServicesAPI;
 import senta.nilesh.autocalc.utils.AppPref;
@@ -55,7 +58,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fabAddItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showInputDialog();
+                WaterBottleFragment wbFrg = (WaterBottleFragment) getSupportFragmentManager().findFragmentByTag("WATER_FRG");
+                if (wbFrg != null && wbFrg.isAdded() && wbFrg.isVisible())
+                    showWaterBottleInputDialog();
+                else
+                    showInputDialog();
             }
         });
 
@@ -83,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
     }
+
 
     private void setupHeader() {
         UserProfileDTO dto = AppPref.get(this).getUserProfileDTO();
@@ -175,6 +183,81 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    int waterBottle = 1;
+
+    private void showWaterBottleInputDialog() {
+        dialog = new Dialog(this, R.style.Dialog);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.dialog_water_bottle);
+
+        final TextView tvDate = (TextView) dialog.findViewById(R.id.tv_date);
+        final ImageView ivIncrease = (ImageView) dialog.findViewById(R.id.iv_increase);
+        final ImageView ivDecrease = (ImageView) dialog.findViewById(R.id.iv_decrease);
+        final TextView tvWaterBottleCount = (TextView) dialog.findViewById(R.id.tv_water_bottle_count);
+
+        Button btnOk = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+        Button btnCancel = (Button) dialog.findViewById(R.id.btn_dialog_cancel);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy EEE hh:mm a");
+        tvDate.setText(dateFormat.format(new Date(System.currentTimeMillis())));
+
+        ivIncrease.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (waterBottle > 9)
+                    return;
+                waterBottle++;
+                tvWaterBottleCount.setText(String.valueOf(waterBottle));
+            }
+        });
+        ivDecrease.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (waterBottle < 2)
+                    return;
+                waterBottle--;
+                tvWaterBottleCount.setText(String.valueOf(waterBottle));
+            }
+        });
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WaterBottleDTO dto = new WaterBottleDTO();
+                dto.setBottleCount(waterBottle);
+                dto.setBuyDate(tvDate.getText().toString());
+                dto.setUserName(AppPref.get(MainActivity.this).getUserProfileDTO().getUserName());
+
+                final ProgressDialog pd = ProgressDialog.show(MainActivity.this, null, "Please wait...");
+                ServicesAPI.insertWaterBottle(dto, new TransactionInsertListener() {
+                    @Override
+                    public void onTransactionCompleted() {
+                        waterBottle = 1;
+                        if (pd != null && pd.isShowing())
+                            pd.dismiss();
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dialog.dismiss();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -204,10 +287,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_daily_view) {
             DailyViewFragment fragment = new DailyViewFragment();
-            frgTransaction.add(R.id.ll_container, fragment).addToBackStack(null).commit();
+            frgTransaction.add(R.id.ll_container, fragment, "DAILY_FRG").addToBackStack(null).commit();
         } else if (id == R.id.nav_month_view) {
             MonthViewFragment fragment = new MonthViewFragment();
-            frgTransaction.add(R.id.ll_container, fragment).addToBackStack(null).commit();
+            frgTransaction.add(R.id.ll_container, fragment, "MONTH_FRG").addToBackStack(null).commit();
+        } else if (id == R.id.nav_water_bottle) {
+            WaterBottleFragment fragment = new WaterBottleFragment();
+            frgTransaction.add(R.id.ll_container, fragment, "WATER_FRG").addToBackStack(null).commit();
         } else if (id == R.id.nav_profile) {
             selectFirstMenu();
             startActivity(new Intent(MainActivity.this, ProfileActivity.class));
