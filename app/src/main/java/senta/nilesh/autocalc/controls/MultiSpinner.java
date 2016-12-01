@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.res.TypedArray;
+import android.databinding.ObservableArrayList;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.text.TextUtils;
@@ -14,17 +15,36 @@ import senta.nilesh.autocalc.R;
 
 public class MultiSpinner extends AppCompatSpinner {
 
-    private CharSequence[] entries;
+    private String[] entries;
     private boolean[] selected;
     private MultiSpinnerListener listener;
     private Context context;
+
+    public void setMultiSpinnerEntries(ObservableArrayList<String> list) {
+        entries = list.toArray(new String[list.size()]);
+        selected = new boolean[entries.length]; // false-filled by default
+        for (int i=0; i<entries.length; i++) {
+            selected[i] = true;
+        }
+        StringBuilder spinnerBuffer = new StringBuilder();
+        for (int i = 0; i < entries.length; i++) {
+            if (selected[i]) {
+                spinnerBuffer.append(entries[i]);
+                spinnerBuffer.append(", ");
+            }
+        }
+        // Remove trailing comma
+        if (spinnerBuffer.length() > 2) {
+            spinnerBuffer.setLength(spinnerBuffer.length() - 2);
+        }
+    }
 
     public MultiSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         this.context  =context;
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MultiSpinner);
-        entries = a.getTextArray(R.styleable.MultiSpinner_android_entries);
+//        entries = a.getTextArray(R.styleable.MultiSpinner_android_entries);
         if (entries != null) {
             selected = new boolean[entries.length]; // false-filled by default
             for (int i=0; i<entries.length; i++) {
@@ -44,7 +64,7 @@ public class MultiSpinner extends AppCompatSpinner {
 
             // display new text
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-                    android.R.layout.simple_spinner_item,
+                    R.layout.item_spinner,
                     new String[] { (!TextUtils.isEmpty(spinnerBuffer.toString())) ?spinnerBuffer.toString() : context.getString(R.string.no_selection) });
             setAdapter(adapter);
 
@@ -80,7 +100,7 @@ public class MultiSpinner extends AppCompatSpinner {
 
             // display new text
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-                    android.R.layout.simple_spinner_item,
+                    R.layout.item_spinner,
                     new String[] { (!TextUtils.isEmpty(spinnerBuffer.toString())) ?spinnerBuffer.toString() : context.getString(R.string.no_selection) });
             setAdapter(adapter);
 
@@ -98,7 +118,7 @@ public class MultiSpinner extends AppCompatSpinner {
         new  AlertDialog.Builder(getContext(), R.style.Dialog)
                 .setMultiChoiceItems(entries, selected, mOnMultiChoiceClickListener)
                 .setPositiveButton(android.R.string.ok, mOnClickListener)
-                .setCancelable(false)
+                .setCancelable(true)
                 .show();
         return true;
     }

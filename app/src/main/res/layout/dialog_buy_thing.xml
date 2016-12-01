@@ -69,7 +69,7 @@
                 android:id="@+id/sp_payby"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:entries="@array/user_array"
+
                 android:longClickable="false"
                 android:paddingBottom="10dp" />
 
@@ -83,7 +83,7 @@
                 android:id="@+id/sp_users"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:entries="@array/user_array"
+
                 android:longClickable="false"
                 android:paddingBottom="10dp" />
 

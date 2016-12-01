@@ -2,11 +2,14 @@ package senta.nilesh.autocalc.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.databinding.ObservableArrayList;
 import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import senta.nilesh.autocalc.dto.ItemDTO;
@@ -55,13 +58,15 @@ public class AppPref {
         return sp.getString("contact_string", "");
     }
 
-    public  void saveRegistrationToken(String token){
+    public void saveRegistrationToken(String token) {
         sp.edit().putString("registration_token", token).commit();
+
     }
 
-    public  String getRegistrationToken(){
+    public String getRegistrationToken() {
         return sp.getString("registration_token", null);
     }
+
     public void addOfflineList(ItemDTO item) {
         List<ItemDTO> list = new Gson().fromJson(sp.getString("offline_items", null), List.class);
         if (list == null) {
@@ -76,12 +81,29 @@ public class AppPref {
         if (list == null) {
             return;
         }
-        for (ItemDTO i:list){
+        for (ItemDTO i : list) {
             if (i.getBuyDate().equals(item.getBuyDate())) {
                 list.remove(i);
                 break;
             }
         }
         sp.edit().putString("offline_items", new Gson().toJson(list)).commit();
+    }
+
+    public void saveUserList(ObservableArrayList<UserProfileDTO> list) {
+        sp.edit().putString("users_list", new Gson().toJson(list)).commit();
+    }
+
+    public ObservableArrayList<String> getUserList() {
+        ObservableArrayList<UserProfileDTO> list = new Gson().fromJson(sp.getString("users_list", null), new TypeToken<ObservableArrayList<UserProfileDTO>>() {
+        }.getType());
+        ObservableArrayList<String> stringUser = new ObservableArrayList<>();
+        if (list != null && list.size() > 0) {
+            for (UserProfileDTO dto : list) {
+                stringUser.add(dto.getUserName());
+            }
+        }
+        Collections.sort(stringUser);
+        return stringUser;
     }
 }

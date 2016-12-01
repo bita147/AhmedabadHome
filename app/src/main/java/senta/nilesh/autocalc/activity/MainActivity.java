@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -45,6 +46,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView navigationView;
     private FragmentManager fm;
     private FloatingActionButton fabAddItem;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ServicesAPI.getUserList(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     Dialog dialog;
-
     private void showInputDialog() {
         dialog = new Dialog(this, R.style.Dialog);
         dialog.setCancelable(false);
@@ -126,6 +132,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final Spinner spPayby = (Spinner) dialog.findViewById(R.id.sp_payby);
         Button btnOk = (Button) dialog.findViewById(R.id.btn_dialog_ok);
         Button btnCancel = (Button) dialog.findViewById(R.id.btn_dialog_cancel);
+
+        spPayby.setAdapter(new ArrayAdapter<String>(this,R.layout.item_spinner,AppPref.get(this).getUserList()));
+        spUsers.setMultiSpinnerEntries(AppPref.get(this).getUserList());
+        spUsers.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, AppPref.get(this).getUserList()));
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy EEE hh:mm a");
         tvDate.setText(dateFormat.format(new Date(System.currentTimeMillis())));
@@ -181,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return false;
             }
         });
+
     }
 
     int waterBottle = 1;

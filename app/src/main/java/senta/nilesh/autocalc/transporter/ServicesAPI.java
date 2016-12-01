@@ -68,10 +68,10 @@ public class ServicesAPI {
                     listener.onComplete(new FirebaseError(1002, "User not exists"), fbLogin);
                 } else {
                     UserProfileDTO data = dataSnapshot.getValue(UserProfileDTO.class);
-                    if (profile.getPassword().equals(data.getPassword())){
+                    if (profile.getPassword().equals(data.getPassword())) {
                         AppPref.get(context).saveLoginDTO(data);
                         listener.onComplete(null, fbLogin);
-                    }else
+                    } else
                         listener.onComplete(new FirebaseError(1002, "Wrong password...!"), fbLogin);
                 }
             }
@@ -91,7 +91,7 @@ public class ServicesAPI {
                 if (dataSnapshot.getValue() == null) {
                     listener.onComplete(new FirebaseError(1002, "No Contacts"), fbGetContacts);
                 } else {
-                    Log.e(getClass().getName(), ""+ dataSnapshot.getValue());
+                    Log.e(getClass().getName(), "" + dataSnapshot.getValue());
                     AppPref.get(context).saveContactString(dataSnapshot.getValue().toString());
                     listener.onComplete(null, fbGetContacts);
                 }
@@ -240,8 +240,8 @@ public class ServicesAPI {
                 List<String> users = Arrays.asList(notification.getData().getUsersIncluded().split("\\s*,\\s*"));
                 ArrayList<String> regList = new ArrayList<>();
 
-                for (UserProfileDTO profile : list){
-                    if (users.contains(profile.getUserName()) && !profile.getUserName().equals(notification.getData().getUserName())){
+                for (UserProfileDTO profile : list) {
+                    if (users.contains(profile.getUserName()) && !profile.getUserName().equals(notification.getData().getUserName())) {
                         regList.add(profile.getRegisterToken());
                     }
                 }
@@ -256,8 +256,8 @@ public class ServicesAPI {
                             myURLConnection.setRequestProperty("Authorization", "key=AIzaSyCwUXb8jvtNXJEcmzQTygAy2l-QVU67UVs");
                             myURLConnection.setRequestMethod("POST");
                             myURLConnection.setRequestProperty("Content-Type", "application/json");
-                            myURLConnection.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
-                            myURLConnection.setRequestProperty("Accept","*/*");
+                            myURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0 ( compatible ) ");
+                            myURLConnection.setRequestProperty("Accept", "*/*");
                             myURLConnection.setDoInput(true);
                             myURLConnection.setDoOutput(true);
                             JSONObject jo = new JSONObject(new Gson().toJson(notification));
@@ -265,7 +265,7 @@ public class ServicesAPI {
                             wr.write(jo.toString().getBytes("UTF-8"));
                             wr.flush();
                             wr.close();
-                            int i  = myURLConnection.getResponseCode();
+                            int i = myURLConnection.getResponseCode();
                             InputStream response = myURLConnection.getInputStream();
                             myURLConnection.disconnect();
 
@@ -276,6 +276,29 @@ public class ServicesAPI {
                 }).start();
             }
 
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    public static void getUserList(final Context context) {
+        final Firebase fbGetAllRecords = Globle.FIREBASE_HOME.child("/User");
+        fbGetAllRecords.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ObservableArrayList<UserProfileDTO> list = new ObservableArrayList<UserProfileDTO>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
+                    try {
+                        UserProfileDTO dto = itemSnapshot.getValue(UserProfileDTO.class);
+                        list.add(0, dto);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                AppPref.get(context).saveUserList(list);
+            }
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 
