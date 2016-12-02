@@ -106,4 +106,9 @@ public class AppPref {
         Collections.sort(stringUser);
         return stringUser;
     }
+
+    public ObservableArrayList<UserProfileDTO> getUserProfileList() {
+        return new Gson().fromJson(sp.getString("users_list", null), new TypeToken<ObservableArrayList<UserProfileDTO>>() {
+        }.getType());
+    }
 }

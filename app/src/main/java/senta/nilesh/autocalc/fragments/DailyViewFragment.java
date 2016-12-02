@@ -123,7 +123,7 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
     }
 
     private void getRecords() {
-        ServicesAPI.getAllRecords(this);
+        ServicesAPI.getAllRecords(context, this);
     }
 
     @Override
@@ -233,8 +233,8 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
         Button btnCancel = (Button) dialog.findViewById(R.id.btn_dialog_cancel);
 
         spPayby.setAdapter(new ArrayAdapter<String>(context,R.layout.item_spinner,AppPref.get(context).getUserList()));
-        spUsers.setMultiSpinnerEntries(AppPref.get(context).getUserList());
         spUsers.setAdapter(new ArrayAdapter<String>(context,android.R.layout.simple_spinner_item,AppPref.get(context).getUserList()));
+        spUsers.setMultiSpinnerEntries(AppPref.get(context).getUserList(),AppPref.get(context).getUserProfileList());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy EEE hh:mm a");
         tvDate.setText(dateFormat.format(new Date(System.currentTimeMillis())));

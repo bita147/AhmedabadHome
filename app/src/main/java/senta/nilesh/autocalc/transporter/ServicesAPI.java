@@ -137,41 +137,22 @@ public class ServicesAPI {
         Globle.FIREBASE_HOME.child("/Waterbottle").child(key).removeValue();
     }
 
-    public static void getAllRecords(final FirebaseItemListChangeListener listerner) {
+    public static void getAllRecords(final Context context, final FirebaseItemListChangeListener listerner) {
         final Firebase fbGetAllRecords = Globle.FIREBASE_HOME.child("/Transaction");
         fbGetAllRecords.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ObservableArrayList<ItemDTO> list = new ObservableArrayList<ItemDTO>();
+                UserProfileDTO user = AppPref.get(context).getUserProfileDTO();
                 for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
                     try {
-//                        Gson gson = new Gson();
-//                        JsonReader reader = new JsonReader(new StringReader(itemSnapshot.getValue().toString()));
-//                        reader.setLenient(true);
-//                        list.add((ItemDTO) gson.fromJson(reader,ItemDTO.class));
-//                        list.add(new Gson().fromJson(itemSnapshot.getValue().toString(),ItemDTO.class));
-//                        JSONObject jObject = new JSONObject(itemSnapshot.getValue().toString());
-
                         ItemDTO dto = itemSnapshot.getValue(ItemDTO.class);
                         dto.setKey(itemSnapshot.getKey());
-                        list.add(0, dto);
-                        itemSnapshot.getKey();
-
+                        if (dto.getUsersIncluded().contains(user.getUserName()) || dto.getPayBy().contains(user.getUserName()))
+                            list.add(0, dto);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-//                    try {
-//                        JSONObject object  = new JSONObject(new Gson().toJson(itemSnapshot.child("userName").toString()));
-//                        Log.e("df", object.toString());
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                    ItemDTO dto = new ItemDTO();
-//                    dto.setUserName(itemSnapshot.child("").toString());
-//                    dto.setBuyDate();
-//                    dto.setItemDesc();
-//                    dto.setAmt();
-
                 }
                 listerner.onItemChange(list);
             }
@@ -299,6 +280,7 @@ public class ServicesAPI {
                 }
                 AppPref.get(context).saveUserList(list);
             }
+
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 

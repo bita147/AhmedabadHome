@@ -9,22 +9,33 @@ public class UserProfileDTO implements Serializable {
     private String userName;
     private String password;
     private String firstName;
+    private boolean isGuest;
     private String lastName;
     private String phone;
     private String email;
     private String registerToken;
 
+
     public UserProfileDTO() {
     }
 
-    public UserProfileDTO(String userName, String password, String firstName, String lastName, String phone, String email, String registerToken) {
+    public UserProfileDTO(String userName, String password, String firstName, String lastName, String phone, String email, boolean isGuest, String registerToken) {
         this.userName = userName;
         this.password = password;
         this.firstName = firstName;
+        this.isGuest = isGuest;
         this.lastName = lastName;
         this.phone = phone;
         this.email = email;
         this.registerToken = registerToken;
+    }
+
+    public boolean isGuest() {
+        return isGuest;
+    }
+
+    public void setGuest(boolean guest) {
+        isGuest = guest;
     }
 
     public String getRegisterToken() {

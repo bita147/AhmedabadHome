@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
         fm = getSupportFragmentManager();
 
+
         fabAddItem = (FloatingActionButton) findViewById(R.id.fab);
         fabAddItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +97,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.getMenu().getItem(0).setChecked(true);
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
+        if (AppPref.get(this).getUserProfileDTO().isGuest()){
+            navigationView.getMenu().getItem(1).setVisible(false);
+        }
     }
 
 
@@ -134,8 +138,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button btnCancel = (Button) dialog.findViewById(R.id.btn_dialog_cancel);
 
         spPayby.setAdapter(new ArrayAdapter<String>(this,R.layout.item_spinner,AppPref.get(this).getUserList()));
-        spUsers.setMultiSpinnerEntries(AppPref.get(this).getUserList());
         spUsers.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, AppPref.get(this).getUserList()));
+        spUsers.setMultiSpinnerEntries(AppPref.get(this).getUserList(), AppPref.get(this).getUserProfileList());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy EEE hh:mm a");
         tvDate.setText(dateFormat.format(new Date(System.currentTimeMillis())));

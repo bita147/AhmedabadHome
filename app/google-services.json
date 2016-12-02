@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "595364841566",
-    "firebase_url": "https://ahmedabad-home.firebaseio.com",
-    "project_id": "ahmedabad-home",
-    "storage_bucket": "ahmedabad-home.appspot.com"
+    "project_number": "787481071466",
+    "firebase_url": "https://ahmedabad-home-test.firebaseio.com",
+    "project_id": "ahmedabad-home-test",
+    "storage_bucket": "ahmedabad-home-test.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:595364841566:android:dc449201afe9a8f9",
+        "mobilesdk_app_id": "1:787481071466:android:dc449201afe9a8f9",
         "android_client_info": {
           "package_name": "senta.nilesh.autocalc"
         }
       },
       "oauth_client": [
         {
-          "client_id": "595364841566-jkubv23a4i5imfrb0388hr98qn3de9ng.apps.googleusercontent.com",
+          "client_id": "787481071466-0a11l9bdq4aqclj8564nvkuoupkhl600.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDZy_suPEe5yDoboim8qk6Diy6jF0rXgQo"
+          "current_key": "AIzaSyAHD-H2XKjZtk6PfiVaHo__WsAHZiSa9_Q"
         }
       ],
       "services": {

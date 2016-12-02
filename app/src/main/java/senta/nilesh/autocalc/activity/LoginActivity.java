@@ -37,6 +37,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
+
+
         btnLogin = (Button) findViewById(R.id.btn_login);
         btnRegister = (Button) findViewById(R.id.btn_register);
         etUserName = (EditText) findViewById(R.id.et_username);
@@ -45,10 +47,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         btnLogin.setOnClickListener(this);
         btnRegister.setOnClickListener(this);
 
+        checkIntentLogin();
+
         etPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_GO){
+                if (actionId == EditorInfo.IME_ACTION_GO) {
                     checkFirrebaseLogin();
                     return true;
                 }
@@ -56,6 +60,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
 
+    }
+
+    private void checkIntentLogin() {
+        Intent intent = getIntent();
+        if (intent != null && intent.getExtras() != null) {
+            etUserName.setText(intent.getExtras().getString("UNAME", null));
+            etPassword.setText(intent.getExtras().getString("PASS", null));
+            checkFirrebaseLogin();
+        }
     }
 
     @Override
