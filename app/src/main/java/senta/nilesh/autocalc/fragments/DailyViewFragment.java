@@ -184,11 +184,13 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
         TextView tvInserted = (TextView) dialog.findViewById(R.id.tv_inserted);
         TextView tvUsersIncluded = (TextView) dialog.findViewById(R.id.tv_users_included);
         TextView tvAmount = (TextView) dialog.findViewById(R.id.tv_amount);
+        TextView tvPaidBy = (TextView) dialog.findViewById(R.id.tv_paidby);
         Button btnOk = (Button) dialog.findViewById(R.id.btn_dialog_ok);
         Button btnInsertAgain = (Button) dialog.findViewById(R.id.btn_dialog_insert_again);
 
         tvInserted.setText(item.getUserName());
         tvUsersIncluded.setText(item.getUsersIncluded());
+        tvPaidBy.setText(item.getPayBy());
         tvAmount.setText(String.valueOf(item.getAmt()));
 
         btnOk.setOnClickListener(new View.OnClickListener() {

@@ -1,18 +1,32 @@
 package senta.nilesh.autocalc.transporter;
 
+import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.ObservableArrayList;
+import android.net.Uri;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -23,12 +37,16 @@ import java.util.List;
 import senta.nilesh.autocalc.dto.ItemDTO;
 import senta.nilesh.autocalc.dto.NotificationDTO;
 import senta.nilesh.autocalc.dto.UserProfileDTO;
+import senta.nilesh.autocalc.dto.VersionDTO;
 import senta.nilesh.autocalc.dto.WaterBottleDTO;
 import senta.nilesh.autocalc.listeners.FirebaseItemListChangeListener;
 import senta.nilesh.autocalc.listeners.FirebaseWaterBottleItemListChangeListener;
 import senta.nilesh.autocalc.listeners.TransactionInsertListener;
+import senta.nilesh.autocalc.listeners.VersionInfoRetrived;
 import senta.nilesh.autocalc.utils.AppPref;
 import senta.nilesh.autocalc.utils.AppUtils;
+
+import static senta.nilesh.autocalc.transporter.Globle.FIREBASE_FILE_HOST;
 
 /**
  * Created by "Nilesh Senta" on 4/7/2016.
@@ -284,6 +302,73 @@ public class ServicesAPI {
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 
+            }
+        });
+    }
+
+    public static void getVersionUpadteInfo(final VersionInfoRetrived listener) {
+        final Firebase fbGetAllRecords = Globle.FIREBASE_HOME.child("/Version");
+        fbGetAllRecords.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                VersionDTO version = null;
+                version =  dataSnapshot.getValue(VersionDTO.class);
+
+                if (listener != null)
+                    listener.onVersionInfoRetrived(version);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    static File file;
+    public static void getAllFiles(final Context context){
+        final ProgressDialog pd = ProgressDialog.show(context,null,"Please wait...");
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReferenceFromUrl(FIREBASE_FILE_HOST + "/ahmedabad.apk");
+
+        file = new File(Environment.DIRECTORY_DOWNLOADS + File.separator + "ahmedabad.apk");
+
+        storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                if (pd!=null && pd.isShowing())
+                    pd.dismiss();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
+        }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                double fprogress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                int bytes = (int) taskSnapshot.getBytesTransferred();
+
+                String progress = String.format("%.2f", fprogress);
+                int constant = 1000;
+                if(bytes%constant == 0)
+                {
+                    android.support.v4.app.NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(context)
+                                    .setSmallIcon(android.R.drawable.stat_sys_download)
+                                    .setContentTitle("Downloading " )
+                                    .setContentText(" " + progress + "% completed" );
+
+                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.notify(1, mBuilder.build());
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (pd!=null && pd.isShowing())
+                    pd.dismiss();
             }
         });
     }

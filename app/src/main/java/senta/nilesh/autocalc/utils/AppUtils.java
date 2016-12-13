@@ -2,6 +2,8 @@ package senta.nilesh.autocalc.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.design.widget.Snackbar;
@@ -75,8 +77,19 @@ public class AppUtils {
         }
     }
 
-    public static void hideKeyboard(Context context){
-        InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(((AppCompatActivity)context).findViewById(android.R.id.content).getWindowToken(), 0);
+    public static void hideKeyboard(Context context) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(((AppCompatActivity) context).findViewById(android.R.id.content).getWindowToken(), 0);
+    }
+
+    public static int getVersionCode(Context context) {
+        PackageManager pkgMgr = context.getPackageManager();
+        try {
+            PackageInfo pkgInfo = pkgMgr.getPackageInfo(context.getPackageName(), 0);
+            return pkgInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

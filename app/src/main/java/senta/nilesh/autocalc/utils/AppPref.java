@@ -111,4 +111,12 @@ public class AppPref {
         return new Gson().fromJson(sp.getString("users_list", null), new TypeToken<ObservableArrayList<UserProfileDTO>>() {
         }.getType());
     }
+
+    public int getVersionCode() {
+        return sp.getInt("app_version_code", 0);
+    }
+
+    public void saveVersionCode(Context  context) {
+        sp.edit().putInt("app_version_code", AppUtils.getVersionCode(context)).commit();
+    }
 }

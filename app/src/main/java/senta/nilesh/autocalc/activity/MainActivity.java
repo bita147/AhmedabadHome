@@ -1,18 +1,25 @@
 package senta.nilesh.autocalc.activity;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -34,11 +41,13 @@ import senta.nilesh.autocalc.controls.MultiSpinner;
 import senta.nilesh.autocalc.dto.ItemDTO;
 import senta.nilesh.autocalc.dto.NotificationDTO;
 import senta.nilesh.autocalc.dto.UserProfileDTO;
+import senta.nilesh.autocalc.dto.VersionDTO;
 import senta.nilesh.autocalc.dto.WaterBottleDTO;
 import senta.nilesh.autocalc.fragments.DailyViewFragment;
 import senta.nilesh.autocalc.fragments.MonthViewFragment;
 import senta.nilesh.autocalc.fragments.WaterBottleFragment;
 import senta.nilesh.autocalc.listeners.TransactionInsertListener;
+import senta.nilesh.autocalc.listeners.VersionInfoRetrived;
 import senta.nilesh.autocalc.transporter.ServicesAPI;
 import senta.nilesh.autocalc.utils.AppPref;
 
@@ -61,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
         fm = getSupportFragmentManager();
 
-
+        checkUpdateVersion();
         fabAddItem = (FloatingActionButton) findViewById(R.id.fab);
         fabAddItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        DailyViewFragment fragment = new DailyViewFragment();
 //        getSupportFragmentManager().beginTransaction().add(R.id.ll_container, fragment).commit();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.snackbar_position);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
             public void onDrawerOpened(View drawerView) {
@@ -97,11 +106,83 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.getMenu().getItem(0).setChecked(true);
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
-        if (AppPref.get(this).getUserProfileDTO().isGuest()){
+        if (AppPref.get(this).getUserProfileDTO().isGuest()) {
             navigationView.getMenu().getItem(1).setVisible(false);
         }
     }
 
+    private void checkUpdateVersion() {
+        AppPref.get(MainActivity.this).saveVersionCode(MainActivity.this);
+        ServicesAPI.getVersionUpadteInfo(new VersionInfoRetrived() {
+            @Override
+            public void onVersionInfoRetrived(VersionDTO version) {
+                if (version != null && version.getVersion() > AppPref.get(MainActivity.this).getVersionCode()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Update");
+                    builder.setMessage("App Update available press download button to download it");
+                    builder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            appDownloadAndInstall();
+                        }
+                    });
+                    if (version.isIsOldAppContinue()) {
+                        builder.setNegativeButton("Cancel", null);
+                    } else
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                finish();
+                            }
+                        });
+                    AlertDialog dialog = builder.create();
+                    dialog.setCancelable(false);
+                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.show();
+                }
+            }
+        });
+    }
+
+    private void appDownloadAndInstall() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+            checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        } else
+            ServicesAPI.getAllFiles(this);
+    }
+
+    // For Android M Permision
+    @TargetApi(Build.VERSION_CODES.M)
+    private void checkPermission(final Context context, final String permission) {
+
+        if (shouldShowRequestPermissionRationale(permission)) {
+            Snackbar.make(findViewById(R.id.snackbar_position), "App need permission", Snackbar.LENGTH_INDEFINITE).setAction(android.R.string.ok, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    requestPermissions(new String[]{permission}, 0);
+                }
+            }).show();
+        } else {
+            Snackbar.make(findViewById(R.id.snackbar_position), "Permission not Granted", Snackbar.LENGTH_SHORT).show();
+            requestPermissions(new String[]{permission}, 0);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 0) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    switch (permissions[i]) {
+                        case Manifest.permission.WRITE_EXTERNAL_STORAGE:
+                            ServicesAPI.getAllFiles(this);
+                            break;
+                    }
+                }
+            }
+        } else
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 
     private void setupHeader() {
         UserProfileDTO dto = AppPref.get(this).getUserProfileDTO();
@@ -124,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     Dialog dialog;
+
     private void showInputDialog() {
         dialog = new Dialog(this, R.style.Dialog);
         dialog.setCancelable(false);
@@ -137,8 +219,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button btnOk = (Button) dialog.findViewById(R.id.btn_dialog_ok);
         Button btnCancel = (Button) dialog.findViewById(R.id.btn_dialog_cancel);
 
-        spPayby.setAdapter(new ArrayAdapter<String>(this,R.layout.item_spinner,AppPref.get(this).getUserList()));
-        spUsers.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, AppPref.get(this).getUserList()));
+        spPayby.setAdapter(new ArrayAdapter<String>(this, R.layout.item_spinner, AppPref.get(this).getUserList()));
+        spUsers.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, AppPref.get(this).getUserList()));
         spUsers.setMultiSpinnerEntries(AppPref.get(this).getUserList(), AppPref.get(this).getUserProfileList());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy EEE hh:mm a");
@@ -275,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.snackbar_position);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -316,7 +398,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             selectFirstMenu();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.snackbar_position);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
