@@ -1,6 +1,5 @@
 package senta.nilesh.autocalc.transporter;
 
-import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +7,6 @@ import android.databinding.ObservableArrayList;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.firebase.client.DataSnapshot;
@@ -19,7 +17,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
@@ -34,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import senta.nilesh.autocalc.R;
 import senta.nilesh.autocalc.dto.ItemDTO;
 import senta.nilesh.autocalc.dto.NotificationDTO;
 import senta.nilesh.autocalc.dto.UserProfileDTO;
@@ -312,7 +310,7 @@ public class ServicesAPI {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 VersionDTO version = null;
-                version =  dataSnapshot.getValue(VersionDTO.class);
+                version = dataSnapshot.getValue(VersionDTO.class);
 
                 if (listener != null)
                     listener.onVersionInfoRetrived(version);
@@ -326,48 +324,37 @@ public class ServicesAPI {
     }
 
     static File file;
-    public static void getAllFiles(final Context context){
-        final ProgressDialog pd = ProgressDialog.show(context,null,"Please wait...");
+
+    public static void getAllFiles(final Context context) {
+        final ProgressDialog pd = ProgressDialog.show(context, null, "Please wait...");
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReferenceFromUrl(FIREBASE_FILE_HOST + "/ahmedabad.apk");
 
-        file = new File(Environment.DIRECTORY_DOWNLOADS + File.separator + "ahmedabad.apk");
+        File downloadDir = new File(Environment.getExternalStorageDirectory().getAbsoluteFile() + File.separator + context.getString(R.string.app_name));
+        if (!downloadDir.exists()){
+            boolean isfileCreatd = downloadDir.mkdirs();
+            if (!isfileCreatd){
+                if (pd!=null && pd.isShowing())
+                    pd.dismiss();
+                return;
+            }
+        }
+        file = new File(downloadDir + File.separator + "ahmedabad.apk");
 
         storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                if (pd!=null && pd.isShowing())
+                if (pd != null && pd.isShowing())
                     pd.dismiss();
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }
-        }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                double fprogress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                int bytes = (int) taskSnapshot.getBytesTransferred();
-
-                String progress = String.format("%.2f", fprogress);
-                int constant = 1000;
-                if(bytes%constant == 0)
-                {
-                    android.support.v4.app.NotificationCompat.Builder mBuilder =
-                            new NotificationCompat.Builder(context)
-                                    .setSmallIcon(android.R.drawable.stat_sys_download)
-                                    .setContentTitle("Downloading " )
-                                    .setContentText(" " + progress + "% completed" );
-
-                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    mNotificationManager.notify(1, mBuilder.build());
-                }
-
-            }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                if (pd!=null && pd.isShowing())
+                if (pd != null && pd.isShowing())
                     pd.dismiss();
             }
         });

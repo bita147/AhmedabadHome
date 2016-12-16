@@ -82,14 +82,15 @@ public class AppUtils {
         imm.hideSoftInputFromWindow(((AppCompatActivity) context).findViewById(android.R.id.content).getWindowToken(), 0);
     }
 
-    public static int getVersionCode(Context context) {
+    static int getVersionCode(Context context) {
         PackageManager pkgMgr = context.getPackageManager();
+        int versionCode = 0;
         try {
             PackageInfo pkgInfo = pkgMgr.getPackageInfo(context.getPackageName(), 0);
-            return pkgInfo.versionCode;
+            versionCode =  pkgInfo.versionCode;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        return 0;
+        return versionCode;
     }
 }

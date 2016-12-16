@@ -33,6 +33,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -109,6 +112,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (AppPref.get(this).getUserProfileDTO().isGuest()) {
             navigationView.getMenu().getItem(1).setVisible(false);
         }
+        updateRegistrationToken();
+    }
+
+    private void updateRegistrationToken() {
+        AppPref prefs = AppPref.get(this);
+        UserProfileDTO profile = prefs.getUserProfileDTO();
+        profile.setRegisterToken(prefs.getRegistrationToken());
+        prefs.saveLoginDTO(profile);
+        ServicesAPI.updateRegistrationToken(profile, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+            }
+        });
     }
 
     private void checkUpdateVersion() {

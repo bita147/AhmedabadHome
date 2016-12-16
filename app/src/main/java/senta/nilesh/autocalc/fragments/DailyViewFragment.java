@@ -30,9 +30,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -93,7 +90,7 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
 
         getRecords();
 
-        updateRegistrationToken();
+
         return root;
     }
 
@@ -110,18 +107,6 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
         return "";
     }
 
-    private void updateRegistrationToken() {
-        AppPref prefs = AppPref.get(getActivity());
-        UserProfileDTO profile = prefs.getUserProfileDTO();
-        profile.setRegisterToken(prefs.getRegistrationToken());
-        prefs.saveLoginDTO(profile);
-        ServicesAPI.updateRegistrationToken(profile, new Firebase.CompletionListener() {
-            @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-            }
-        });
-    }
-
     private void getRecords() {
         ServicesAPI.getAllRecords(context, this);
     }
@@ -131,7 +116,6 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
         inflater.inflate(R.menu.menu_main, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -173,7 +157,6 @@ public class DailyViewFragment extends Fragment implements FirebaseItemListChang
         builder.setNegativeButton("CANCEL", null);
         builder.create().show();
     }
-
 
     @Override
     public void onItemClick(View view, final ItemDTO item) {

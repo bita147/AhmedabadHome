@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.databinding.ObservableArrayList;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -117,6 +118,7 @@ public class AppPref {
     }
 
     public void saveVersionCode(Context  context) {
+        Log.e("CURRENT  VEr Code", ""+ AppUtils.getVersionCode(context));
         sp.edit().putInt("app_version_code", AppUtils.getVersionCode(context)).commit();
     }
 }
