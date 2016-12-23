@@ -164,7 +164,7 @@ public class ServicesAPI {
                     try {
                         ItemDTO dto = itemSnapshot.getValue(ItemDTO.class);
                         dto.setKey(itemSnapshot.getKey());
-                        if (dto.getUsersIncluded().contains(user.getUserName()) || dto.getPayBy().contains(user.getUserName()))
+//                        if (dto.getUsersIncluded().contains(user.getUserName()) || dto.getPayBy().contains(user.getUserName()))
                             list.add(0, dto);
                     } catch (Exception e) {
                         e.printStackTrace();

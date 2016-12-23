@@ -151,10 +151,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 finish();
                             }
                         });
-                    AlertDialog dialog = builder.create();
-                    dialog.setCancelable(false);
-                    dialog.setCanceledOnTouchOutside(false);
-                    dialog.show();
+                    try {
+                        AlertDialog dialog = builder.create();
+                        dialog.setCancelable(false);
+                        dialog.setCanceledOnTouchOutside(false);
+                        dialog.show();
+                    } catch (Exception r) {
+                        r.printStackTrace();
+                    }
                 }
             }
         });
